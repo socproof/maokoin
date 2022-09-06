@@ -9,7 +9,7 @@ import MaoKoin
 test_maokoin : Script ()
 test_maokoin = do
   [bank, seller, client] <- mapA allocateParty ["Bank", "Alice", "Bob"]
-  let observers = fromList [ bank, client ]
+  let observers = fromList [ bank, seller ]
   let (coinId, coin) = getAsset bank "MaoKoin@Bank" 10_000_000.0
   let (productId, product) = getAsset seller "Product@Alice" 1.0
 
@@ -24,11 +24,7 @@ test_maokoin = do
       dates = [nowDate]
       observers
 
-  submit client do
-    exerciseByKeyCmd @MaoKoin coinId MaoKoin_Transfer with
-      newOwner = seller
-
-  productCid <- submit seller do
+  submit seller do
     createCmd Product with
       id = productId
       owner = seller

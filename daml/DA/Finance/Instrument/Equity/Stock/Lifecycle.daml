@@ -6,7 +6,7 @@ module DA.Finance.Instrument.Equity.Stock.Lifecycle where
 import DA.Set
 
 import DA.Finance.Asset.Lifecycle
--- import DA.Finance.Instrument.Entitlement
+import DA.Finance.Instrument.Entitlement
 import DA.Finance.Instrument.Equity.CashDividend
 import DA.Finance.Instrument.Equity.Stock
 import DA.Finance.Instrument.Equity.StockSplit
@@ -25,7 +25,7 @@ template EquityStockCashDividendRule
     maintainer key
 
     controller signatories can
-      nonconsuming EquityStockCashDividend_Lifecycle : (ContractId EquityStock, ContractId LifecycleEffects)
+      nonconsuming EquityStockCashDividend_Lifecycle : (ContractId EquityStock, ContractId Entitlement, ContractId LifecycleEffects)
         -- ^ Allows the signatories to process dividend reference data
         -- for the corresponding stock.
         with
@@ -35,21 +35,20 @@ template EquityStockCashDividendRule
             -- ^ A label for the entitlement instrument describing the dividend payment.
         do
           dividend <- fetch dividendCid
-          -- assertOnOrAfterDateMsg "expects exDate <= now" $ dividend.exDate
+          assertOnOrAfterDateMsg "expects exDate <= now" $ dividend.exDate
 
-          (sid, stock) <- fetchByKey @EquityStock dividend.id
-          archive sid
+          (_, stock) <- fetchByKey @EquityStock dividend.id
           let stockIdNew = increaseVersion stock.id
           stockCid <- create stock with id = stockIdNew
 
-          -- let entitlementId = Id with signatories, label = entitlementIdLabel, version = 0
-          -- entitlementCid <-
-          --   create Entitlement with
-          --     id = entitlementId
-          --     settlementDate = dividend.settlementDate
-          --     underlying = Asset with id = stock.ccy, quantity = dividend.perShare
-          --     payment = None
-          --     observers = dividend.observers
+          let entitlementId = Id with signatories, label = entitlementIdLabel, version = 0
+          entitlementCid <-
+            create Entitlement with
+              id = entitlementId
+              settlementDate = dividend.settlementDate
+              underlying = Asset with id = stock.ccy, quantity = dividend.perShare
+              payment = None
+              observers = dividend.observers
 
           lifecycleEffectsCid <-
             create LifecycleEffects with
@@ -58,13 +57,11 @@ template EquityStockCashDividendRule
               consuming = []
               effects =
                 [ Asset with id = stockIdNew, quantity = 1.0
-                , Asset with id = stock.ccy, quantity = dividend.perShare
-                -- , Asset with id = entitlementId, quantity = 1.0
+                , Asset with id = entitlementId, quantity = 1.0
                 ]
               observers = dividend.observers
 
-          -- return (stockCid, entitlementCid, lifecycleEffectsCid)
-          return (stockCid, lifecycleEffectsCid)
+          return (stockCid, entitlementCid, lifecycleEffectsCid)
 
 -- | Rule that helps with processing stock splits for stocks.
 template EquityStockSplitRule
@@ -86,10 +83,9 @@ template EquityStockSplitRule
             -- ^ Stock split reference data.
         do
           stockSplit <- fetch stockSplitCid
-          -- assertOnOrAfterDateMsg "expects exDate <= now" $ stockSplit.exDate
+          assertOnOrAfterDateMsg "expects exDate <= now" $ stockSplit.exDate
 
-          (scid, stock) <- fetchByKey @EquityStock stockSplit.id
-          archive scid
+          (_, stock) <- fetchByKey @EquityStock stockSplit.id
           let stockIdNew = increaseVersion stock.id
           stockCid <- create stock with id = stockIdNew
 

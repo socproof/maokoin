@@ -1,9 +1,12 @@
-module DA.Finance.Instrument.FixedIncome.Bond where
+-- Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+
+module DA.Finance.Instrument.FixedIncome.FixedRateBond where
 
 import DA.Set
 import DA.Finance.Types
 
-template Bond
+template FixedRateBond
   with
     id : Id
     currencyId : Id
@@ -14,6 +17,6 @@ template Bond
   where
     signatory id.signatories
     observer observers
-    
+
     key id : Id
     maintainer key.signatories

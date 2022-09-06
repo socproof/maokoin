@@ -5,7 +5,6 @@ module DA.Finance.Utils where
 
 import DA.Date
 import DA.List as List
-
 import DA.Finance.Types
 
 instance Semigroup Decimal where
@@ -13,6 +12,7 @@ instance Semigroup Decimal where
 
 instance Monoid Decimal where
   mempty = 0.0
+
 
 -- | Fetches a contract, archives it and returns its value.
 fetchAndArchive : Template a => ContractId a -> Update a
@@ -22,13 +22,13 @@ fetchAndArchive cid = do
   return c
 
 -- | Checks that the ledger time is on or after the provided date.
-assertOnOrAfterDateMsg : (CanAssert m, HasTime m) => Text -> Date -> m ()
+assertOnOrAfterDateMsg : (CanAbort m, CanAssert m, HasTime m) => Text -> Date -> m ()
 assertOnOrAfterDateMsg msg date = do
   now <- getTime
   assertMsg msg $ date <= toDateUTC now
 
 -- | Checks that the ledger time is on or after the provided date.
-assertOnOrAfterMsg : (CanAssert m, HasTime m) => Text -> Time -> m ()
+assertOnOrAfterMsg : (CanAbort m, CanAssert m, HasTime m) => Text -> Time -> m ()
 assertOnOrAfterMsg msg time = do
   now <- getTime
   assertMsg msg $ time <= now
@@ -41,7 +41,7 @@ zipChecked xs ys
 
 -- | Checks if array is not empty.
 notNull : [a] -> Bool
-notNull xs = not $ List.null xs
+notNull = not . List.null
 
 -- | Update n-th element in a list
 updateListElement : Int -> (a -> a) -> [a] -> [a]
@@ -52,4 +52,4 @@ updateListElement n f xs = zipWith impl xs [0..(List.length xs - 1)]
 
 -- | Increase id version.
 increaseVersion : Id -> Id
-increaseVersion id = id with version = id.version + 1
+increaseVersion id@Id{..} = id with version = version + 1

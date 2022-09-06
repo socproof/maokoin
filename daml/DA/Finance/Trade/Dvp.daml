@@ -53,4 +53,3 @@ isValidDvp Dvp{..} =
   && all (\a -> a.quantity > 0.0) deliveries
   && all (\payment -> payment.id `notElem` (map (.id) deliveries)) payments
   && all (\delivery -> delivery.id `notElem` (map (.id) payments)) deliveries
-  
