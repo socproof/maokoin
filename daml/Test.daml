@@ -1,0 +1,11 @@
+module Test where
+
+import Daml.Script
+import Functions
+
+
+test_maokoin = do
+  [issuer, owner, client] <- mapA allocateParty ["Bank", "Alice", "Bob"]
+  let (coinId, coin) = getAsset issuer "MaoKoin" 10_000_000.0
+
+  pure()

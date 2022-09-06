@@ -1,0 +1,30 @@
+module Asset where
+
+import DA.Finance.Types
+
+template MaoKoin
+  with
+    id: Id
+    issuer: Party
+    owner: Party
+    amount: Decimal
+  where
+    signatory id.signatories
+    observer owner
+
+    choice Transfer : ContractId MaoKoin with
+       newOwner : Party
+     controller owner
+        do create this with owner = newOwner
+
+
+template Product
+  with 
+    owner: Party
+    label: Text
+    price: Decimal
+    link: Text
+    observers: [Party]
+  where
+    signatory owner
+    observer observers
