@@ -67,4 +67,3 @@ template AssetSettlementRule
       do
         assertMsg "ctrl must be part of ctrls." $ ctrl `Set.member` ctrls
         create AssetDeposit with account, asset, observers
-  

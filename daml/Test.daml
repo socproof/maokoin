@@ -24,11 +24,7 @@ test_maokoin = do
       dates = [nowDate]
       observers
 
-  submit client do
-    exerciseByKeyCmd @MaoKoin coinId MaoKoin_Transfer with
-      newOwner = seller
-
-  productCid <- submit seller do
+  submit seller do
     createCmd Product with
       id = productId
       owner = seller
@@ -36,7 +32,7 @@ test_maokoin = do
       link = "some link"
       observers
 
-  submit seller do
+  submit client do
     exerciseByKeyCmd @Product productId Product_Transfer with
       newOwner = client
       koinId = mkCid

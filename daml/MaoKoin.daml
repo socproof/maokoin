@@ -22,7 +22,6 @@ template MaoKoin
      controller owner
         do create this with owner = newOwner
 
-
 template Product
   with 
     id: Id
@@ -40,10 +39,11 @@ template Product
     choice Product_Transfer : ContractId Product with
         koinId: ContractId MaoKoin
         newOwner: Party
-      controller owner
+      controller newOwner
         do 
           koin <- fetch koinId
-          assert $ koin.amount == price
-          assert $ koin.owner == newOwner
+          assertMsg "Amount should be equal to price" $ koin.amount == price
+          assertMsg "Money don't belong to client" $ koin.owner == newOwner
+          exercise koinId MaoKoin_Transfer with newOwner = owner
           create this with owner = newOwner
-
+          

@@ -9,3 +9,4 @@ node_modules
 ui/daml.js
 .idea
 *.iml
+.DS_Store
