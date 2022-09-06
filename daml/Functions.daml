@@ -1,0 +1,14 @@
+module Functions where
+
+import DA.Finance.Types
+import DA.Set
+
+getAsset : Party -> Text -> Decimal -> (Id, Asset)
+getAsset sig label quantity =
+  let id = Id with signatories = fromList [sig]; label; version = 0
+  in (id, Asset with ..)
+
+getAccount : Party -> Text -> Party -> Party -> Account
+getAccount sig label provider owner =
+  let id = Id with signatories = fromList [sig]; label; version = 0
+  in Account with ..

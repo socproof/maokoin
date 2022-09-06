@@ -1,0 +1,49 @@
+module MaoKoin where
+
+import DA.Finance.Types
+import DA.Set
+
+template MaoKoin
+  with
+    id: Id
+    owner: Party
+    amount: Decimal
+    dates: [Date]
+    observers : Set Party
+  where
+    signatory id.signatories
+    observer observers
+
+    key id: Id
+    maintainer key.signatories
+
+    choice MaoKoin_Transfer : ContractId MaoKoin with
+       newOwner : Party
+     controller owner
+        do create this with owner = newOwner
+
+
+template Product
+  with 
+    id: Id
+    owner: Party
+    price: Decimal
+    link: Text
+    observers: Set Party
+  where
+    signatory id.signatories
+    observer observers
+
+    key id: Id
+    maintainer key.signatories
+
+    choice Product_Transfer : ContractId Product with
+        koinId: ContractId MaoKoin
+        newOwner: Party
+      controller owner
+        do 
+          koin <- fetch koinId
+          assert $ koin.amount == price
+          assert $ koin.owner == newOwner
+          create this with owner = newOwner
+

@@ -1,0 +1,43 @@
+module Test where
+
+import Daml.Script
+import DA.Date
+import DA.Set
+import Functions
+import MaoKoin
+
+test_maokoin : Script ()
+test_maokoin = do
+  [bank, seller, client] <- mapA allocateParty ["Bank", "Alice", "Bob"]
+  let observers = fromList [ bank, client ]
+  let (coinId, coin) = getAsset bank "MaoKoin@Bank" 10_000_000.0
+  let (productId, product) = getAsset seller "Product@Alice" 1.0
+
+  nowTime <- getTime
+  let nowDate = toDateUTC nowTime
+
+  mkCid <- submit bank do 
+    createCmd MaoKoin with 
+      id = coinId
+      owner = client
+      amount = 10.0
+      dates = [nowDate]
+      observers
+
+  submit client do
+    exerciseByKeyCmd @MaoKoin coinId MaoKoin_Transfer with
+      newOwner = seller
+
+  productCid <- submit seller do
+    createCmd Product with
+      id = productId
+      owner = seller
+      price = 10.0
+      link = "some link"
+      observers
+
+  submit seller do
+    exerciseByKeyCmd @Product productId Product_Transfer with
+      newOwner = client
+      koinId = mkCid
+  pure()
