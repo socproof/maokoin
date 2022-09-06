@@ -39,7 +39,7 @@ template Product
     choice Product_Transfer : ContractId Product with
         koinId: ContractId MaoKoin
         newOwner: Party
-      controller owner
+      controller newOwner
         do 
           koin <- fetch koinId
           assertMsg "Amount should be equal to price" $ koin.amount == price
