@@ -1,0 +1,19 @@
+module DA.Finance.Instrument.FixedIncome.Bond where
+
+import DA.Set
+import DA.Finance.Types
+
+template Bond
+  with
+    id : Id
+    currencyId : Id
+    couponDates : [Date]
+    couponIdx : Int
+    coupon : Decimal
+    observers : Set Party
+  where
+    signatory id.signatories
+    observer observers
+    
+    key id : Id
+    maintainer key.signatories
