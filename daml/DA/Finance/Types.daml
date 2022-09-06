@@ -22,7 +22,7 @@ data Id = Id
 
 instance Show Id where
   show Id{..} = "Sigs(" <> intercalate ";" (map show (Set.toList signatories)) <> ")-" <> label <> "-" <> show version
- 
+
 -- | A record that identifies an account. Also includes the account
 -- stakeholders because they cannot be looked up from another contract
 -- when specifying choice actors.

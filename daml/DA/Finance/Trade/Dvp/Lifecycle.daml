@@ -40,7 +40,7 @@ template DvpLifecycleRule
         let (payments1, deliveries1) = unzip $ map (apply le) dvp.payments
         let (deliveries2, payments2) = unzip $ map (apply le) dvp.deliveries
         let (payments, deliveries) = net (concat payments1 ++ concat payments2) (concat deliveries1 ++ concat deliveries2)
-        
+
         create dvp with
           tradeId = dvp.tradeId with version = dvp.tradeId.version + 1
           payments
@@ -54,17 +54,17 @@ apply le asset | le.id == asset.id =
   in (effects, consuming)
 apply _ asset = ([asset], [])
 
--- | HIDE 
+-- | HIDE
 net : [Asset] -> [Asset] -> ([Asset], [Asset])
 net payments deliveries =
   let paymentsNetted =
-        filter (\p -> p.quantity > 0.0)
-        $ map (\p -> p with quantity = p.quantity - foldMap (.quantity) (filter (\d -> d.id == p.id) deliveries))
+        filter (\Asset{..} -> quantity > 0.0)
+        $ map (\p@Asset{..} -> p with quantity = quantity - foldMap (.quantity) (filter (\Asset{..} -> id == p.id) deliveries))
         payments
 
       deliveriesNetted =
         filter (\d -> d.quantity > 0.0)
         $ map (\d -> d with quantity = d.quantity - foldMap (.quantity) (filter (\p -> p.id == d.id) payments))
         deliveries
-        
+
   in (paymentsNetted, deliveriesNetted)

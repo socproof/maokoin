@@ -39,7 +39,6 @@ template AssetDeposit
         with newObservers : Set Party
         do create this with observers = newObservers
 
-    controller account.owner can
       AssetDeposit_Split : [ContractId AssetDeposit]
         -- ^ Splits an asset deposit according to the provided list of quantities.
         with

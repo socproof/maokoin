@@ -20,6 +20,6 @@ template ACBRC
   where
     signatory id.signatories
     observer observers
-    
+
     key id : Id
     maintainer key.signatories

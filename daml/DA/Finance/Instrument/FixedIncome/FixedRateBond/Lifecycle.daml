@@ -1,16 +1,17 @@
 -- Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 -- SPDX-License-Identifier: Apache-2.0
 
-module DA.Finance.Instrument.FixedIncome.Bond.Lifecycle where
+module DA.Finance.Instrument.FixedIncome.FixedRateBond.Lifecycle where
 
+import DA.List
 import DA.Set
 
 import DA.Finance.Asset.Lifecycle
-import DA.Finance.Instrument.FixedIncome.Bond
+import DA.Finance.Instrument.FixedIncome.FixedRateBond
 import DA.Finance.Types
 import DA.Finance.Utils
 
-template BondCouponRule
+template FixedRateBondCouponRule
   with
     signatories : Set Party
   where
@@ -20,15 +21,15 @@ template BondCouponRule
     maintainer key
 
     controller signatories can
-      nonconsuming BondCoupon_Lifecycle : (ContractId Bond, ContractId LifecycleEffects)
+      nonconsuming BondCoupon_Lifecycle : (ContractId FixedRateBond, ContractId LifecycleEffects)
         with
-          bondCid : ContractId Bond
+          bondCid : ContractId FixedRateBond
         do
           bond <- fetchAndArchive bondCid
 
           assertMsg "product already expired" $ bond.couponIdx < length bond.couponDates
-          -- assertOnOrAfterDateMsg "expects coupon date <= now" $ bond.couponDates!!bond.couponIdx
-          
+          assertOnOrAfterDateMsg "expects coupon date <= now" $ bond.couponDates!!bond.couponIdx
+
           let
             isRedemption = bond.couponIdx == length bond.couponDates - 1
             redemptionAmount = 1.0
@@ -40,7 +41,7 @@ template BondCouponRule
               | otherwise =
                 [ Asset with id = newBondId, quantity = 1.0
                 , Asset with id = bond.currencyId, quantity = bond.coupon ]
-          
+
           newBondCid <- create bond with
             id = newBondId
             couponIdx = bond.couponIdx + 1
